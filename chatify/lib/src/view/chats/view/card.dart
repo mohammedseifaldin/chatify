@@ -29,7 +29,7 @@ class ChatCard extends StatelessWidget {
     return GestureDetector(
       onTap: () {
         onTap?.call();
-        Get.to(() => MessagesPage(chat: chat));
+        MessagesPage.showWithNavigator(context: context, chat: chat);
       },
       onLongPressStart: onLongPressStart,
       child: Padding(
