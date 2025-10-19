@@ -1,11 +1,11 @@
 import 'package:chatify/chatify.dart';
-
-import '../record/view/record.dart';
-import '../../../common/icon_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
+import '../../../common/icon_button.dart';
 import '../../bloc/bloc.dart';
+import '../record/view/record.dart';
 import 'add.dart';
 
 final _border = OutlineInputBorder(
@@ -55,8 +55,7 @@ class _ChatInputBoxState extends State<ChatInputBox> {
   @override
   Widget build(BuildContext context) {
     return BlocListener<MessagesBloc, MessagesState>(
-      listenWhen: (previous, current) =>
-          previous.textMessage != current.textMessage,
+      listenWhen: (previous, current) => previous.textMessage != current.textMessage,
       listener: (context, state) {
         textController.text = state.textMessage;
         if (state.textMessage.isNotEmpty) {
@@ -67,8 +66,7 @@ class _ChatInputBoxState extends State<ChatInputBox> {
         children: [
           Divider(
             height: 1,
-            color:
-                Theme.of(context).colorScheme.outline.withValues(alpha: 0.16),
+            color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.16),
           ),
           SafeArea(
             child: Padding(
@@ -92,129 +90,98 @@ class _ChatInputBoxState extends State<ChatInputBox> {
                           child: KeyboardListener(
                             focusNode: focusNode,
                             onKeyEvent: _handleKeyPress,
-                            child: BlocSelector<MessagesBloc, MessagesState,
-                                    String>(
+                            child: BlocSelector<MessagesBloc, MessagesState, String>(
                                 selector: (state) => state.textMessage,
                                 builder: (context, text) {
                                   return Directionality(
                                     textDirection: text.directionByLanguage,
                                     child: Container(
                                       decoration: BoxDecoration(
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .surfaceContainerLowest,
-                                          borderRadius:
-                                              BorderRadius.circular(10),
+                                          color:
+                                              Theme.of(context).colorScheme.surfaceContainerLowest,
+                                          borderRadius: BorderRadius.circular(10),
                                           border: Border.all(
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .outlineVariant,
+                                            color: Theme.of(context).colorScheme.outlineVariant,
                                           )),
-                                      child: ChatAddonsRegistry
-                                          .instance.chatAddons
-                                          .fold<Widget>(
-                                              TextField(
-                                                controller: textController,
-                                                focusNode: textFocus,
-                                                maxLines: 5,
-                                                minLines: 1,
-                                                textInputAction:
-                                                    TextInputAction.unspecified,
-                                                keyboardType:
-                                                    TextInputType.multiline,
-                                                autofocus: true,
-                                                onChanged: (value) => context
-                                                    .read<MessagesBloc>()
-                                                    .add(MessagesTextChanged(
-                                                        value)),
-                                                maxLength: 1000,
-                                                buildCounter: (context,
-                                                        {required currentLength,
-                                                        required isFocused,
-                                                        required maxLength}) =>
-                                                    const SizedBox.shrink(),
-                                                decoration: InputDecoration(
-                                                  contentPadding:
-                                                      const EdgeInsets
-                                                          .symmetric(
-                                                    vertical: 12,
-                                                    horizontal: 16,
-                                                  ),
-                                                  constraints:
-                                                      const BoxConstraints(
-                                                    minHeight: 40,
-                                                  ),
-                                                  hintText: 'Type a message',
-                                                  isDense: true,
-                                                  border: _border,
-                                                  enabledBorder: _border,
-                                                  focusedBorder: _border,
-                                                  errorBorder: _border,
-                                                  disabledBorder: _border,
-                                                  focusedErrorBorder: _border,
-                                                  hoverColor:
-                                                      Colors.transparent,
-                                                  suffixIcon: BlocSelector<
-                                                          MessagesBloc,
-                                                          MessagesState,
-                                                          bool>(
-                                                      selector: (state) => state
-                                                          .textMessage
-                                                          .isNotEmpty,
-                                                      builder: (context,
-                                                          isNotEmpty) {
-                                                        return AnimatedSwitcher(
-                                                          duration:
-                                                              const Duration(
-                                                                  milliseconds:
-                                                                      200),
-                                                          transitionBuilder:
-                                                              (child, animation) =>
-                                                                  FadeTransition(
-                                                            opacity: animation,
-                                                            child:
-                                                                ScaleTransition(
-                                                              scale: animation,
-                                                              child: child,
-                                                            ),
-                                                          ),
-                                                          child: isNotEmpty
-                                                              ? Transform.flip(
-                                                                  flipX: text
-                                                                      .isContainArabic,
-                                                                  child:
-                                                                      CustomIconButton(
-                                                                    key: ValueKey(
-                                                                        isNotEmpty),
-                                                                    onPressed:
-                                                                        _onSend,
-                                                                    svg: 'send',
-                                                                  ),
-                                                                )
-                                                              : CustomIconButton(
-                                                                  key: ValueKey(
-                                                                      isNotEmpty),
-                                                                  onPressed:
-                                                                      () {
-                                                                    context
-                                                                        .read<
-                                                                            MessagesBloc>()
-                                                                        .add(
-                                                                          MessagesRecordStart(),
-                                                                        );
-                                                                  },
-                                                                  svg: 'mic',
-                                                                ),
-                                                        );
-                                                      }),
-                                                ),
+                                      child: ChatAddonsRegistry.instance.chatAddons.fold<Widget>(
+                                          TextField(
+                                            controller: textController,
+                                            focusNode: textFocus,
+                                            maxLines: 5,
+                                            minLines: 1,
+                                            textInputAction: TextInputAction.unspecified,
+                                            keyboardType: TextInputType.multiline,
+                                            autofocus: true,
+                                            onChanged: (value) => context
+                                                .read<MessagesBloc>()
+                                                .add(MessagesTextChanged(value)),
+                                            maxLength: 1000,
+                                            buildCounter: (context,
+                                                    {required currentLength,
+                                                    required isFocused,
+                                                    required maxLength}) =>
+                                                const SizedBox.shrink(),
+                                            decoration: InputDecoration(
+                                              contentPadding: const EdgeInsets.symmetric(
+                                                vertical: 12,
+                                                horizontal: 16,
                                               ),
-                                              (w, a) => a.wrapInputField(
-                                                  context,
-                                                  context
-                                                      .read<MessagesBloc>()
-                                                      .chat,
-                                                  w)),
+                                              constraints: const BoxConstraints(
+                                                minHeight: 40,
+                                              ),
+                                              hintText: 'Type a message',
+                                              isDense: true,
+                                              border: _border,
+                                              enabledBorder: _border,
+                                              focusedBorder: _border,
+                                              errorBorder: _border,
+                                              disabledBorder: _border,
+                                              focusedErrorBorder: _border,
+                                              hoverColor: Colors.transparent,
+                                              suffixIcon: BlocSelector<MessagesBloc, MessagesState,
+                                                      bool>(
+                                                  selector: (state) => state.textMessage.isNotEmpty,
+                                                  builder: (context, isNotEmpty) {
+                                                    return AnimatedSwitcher(
+                                                      duration: const Duration(milliseconds: 200),
+                                                      transitionBuilder: (child, animation) =>
+                                                          FadeTransition(
+                                                        opacity: animation,
+                                                        child: ScaleTransition(
+                                                          scale: animation,
+                                                          child: child,
+                                                        ),
+                                                      ),
+                                                      child: isNotEmpty
+                                                          ? Transform.flip(
+                                                              flipX: text.isContainArabic,
+                                                              child: CustomIconButton(
+                                                                key: ValueKey(isNotEmpty),
+                                                                onPressed: _onSend,
+                                                                svg: 'send',
+                                                              ),
+                                                            )
+                                                          : null,
+                                                      // : CustomIconButton(
+                                                      //     key: ValueKey(
+                                                      //         isNotEmpty),
+                                                      //     onPressed:
+                                                      //         () {
+                                                      //       context
+                                                      //           .read<
+                                                      //               MessagesBloc>()
+                                                      //           .add(
+                                                      //             MessagesRecordStart(),
+                                                      //           );
+                                                      //     },
+                                                      //     svg: 'mic',
+                                                      //   ),
+                                                    );
+                                                  }),
+                                            ),
+                                          ),
+                                          (w, a) => a.wrapInputField(
+                                              context, context.read<MessagesBloc>().chat, w)),
                                     ),
                                   );
                                 }),

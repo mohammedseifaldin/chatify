@@ -7,7 +7,8 @@ import '../../chat/view/chat.dart';
 
 class ChatCard extends StatelessWidget {
   final GestureLongPressStartCallback? onLongPressStart;
-  const ChatCard(this.chat, {super.key, this.builder, this.onLongPressStart});
+  final VoidCallback? onTap;
+  const ChatCard(this.chat, {super.key, this.builder, this.onLongPressStart, this.onTap});
 
   final Chat chat;
   final Widget Function(BuildContext context, Chat chat)? builder;
@@ -25,12 +26,13 @@ class ChatCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () {
-        MessagesPage.showWithNavigator(
-          context: context,
-          chat: chat,
-        );
-      },
+      onTap: onTap ??
+          () {
+            MessagesPage.showWithNavigator(
+              context: context,
+              chat: chat,
+            );
+          },
       onLongPressStart: onLongPressStart,
       child: Padding(
         padding: const EdgeInsetsDirectional.only(
