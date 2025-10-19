@@ -6,8 +6,8 @@ import '../../../helpers/extensions.dart';
 import '../../chat/view/chat.dart';
 
 class ChatCard extends StatelessWidget {
-  final VoidCallback? onLongPress;
-  const ChatCard(this.chat, {super.key, this.builder, this.onLongPress});
+  final GestureLongPressStartCallback? onLongPressStart;
+  const ChatCard(this.chat, {super.key, this.builder, this.onLongPressStart});
 
   final Chat chat;
   final Widget Function(BuildContext context, Chat chat)? builder;
@@ -31,7 +31,7 @@ class ChatCard extends StatelessWidget {
           chat: chat,
         );
       },
-      onLongPress: onLongPress,
+      onLongPressStart: onLongPressStart,
       child: Padding(
         padding: const EdgeInsetsDirectional.only(
           start: 28,
