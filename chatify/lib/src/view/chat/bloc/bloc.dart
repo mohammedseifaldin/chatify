@@ -1,21 +1,23 @@
 import 'dart:async';
-import '../../../core/chatify.dart';
-import '../../../core/addons_registry.dart';
-import '../../../helpers/nullable.dart';
-import '../../../core/composer.dart';
-import '../../../core/registery.dart';
-import '../../common/confirm.dart';
+
+import 'package:equatable/equatable.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:equatable/equatable.dart';
 import 'package:get/get.dart' hide Transition;
 import 'package:rxdart/rxdart.dart';
-import '../../../domain/models/chat.dart';
-import '../../../domain/models/messages/message.dart';
-import '../../../domain/models/messages/content.dart';
-import '../../../helpers/paginated_result.dart';
-import '../../../domain/message_repo.dart';
+
+import '../../../core/addons_registry.dart';
+import '../../../core/chatify.dart';
+import '../../../core/composer.dart';
+import '../../../core/registery.dart';
 import '../../../core/task.dart';
+import '../../../domain/message_repo.dart';
+import '../../../domain/models/chat.dart';
+import '../../../domain/models/messages/content.dart';
+import '../../../domain/models/messages/message.dart';
+import '../../../helpers/nullable.dart';
+import '../../../helpers/paginated_result.dart';
+import '../../common/confirm.dart';
 
 part 'event.dart';
 part 'state.dart';
@@ -47,8 +49,7 @@ class MessagesBloc extends Bloc<MessagesEvent, MessagesState> {
         case MessagesStatusUpdated():
           emit(state.copyWith(status: event.status));
         case MessagesUpdated():
-          final unseenMessages =
-              event.messages.items.where((message) => !message.isSeen).toList();
+          final unseenMessages = event.messages.items.where((message) => !message.isSeen).toList();
           emit(state.copyWith(messages: event.messages));
           for (final e in unseenMessages) {
             messageRepo.markAsSeen(e.content.id);
@@ -58,13 +59,28 @@ class MessagesBloc extends Bloc<MessagesEvent, MessagesState> {
           break;
         case MessagesFocus():
           emit(state.copyWith(
-            focusedMessage:
-                event.isShown ? event.message.nl : const Nullable.nl(),
+            focusedMessage: event.isShown ? event.message.nl : const Nullable.nl(),
           ));
         case MessageCopy():
           Clipboard.setData(ClipboardData(text: event.message.content.content));
         case MessageDelete():
-          await delete([event.message]);
+          final msg = event.message;
+          final result = await messageRepo.delete(msg.content.id, msg.isMine);
+          if (result.isSuccess) {
+            final updatedMessages = state.messages.copyWith(
+              items: state.messages.items.where((m) => m.content.id != msg.content.id).toList(),
+            );
+            emit(state.copyWith(messages: updatedMessages));
+            final pending =
+                state.pendingMessages.where((m) => m.content.id != msg.content.id).toList();
+            final failed =
+                state.failedMessages.where((m) => m.content.id != msg.content.id).toList();
+            emit(state.copyWith(
+              pendingMessages: pending,
+              failedMessages: failed,
+            ));
+          }
+
         case MessageEdit():
           emit(state.copyWith(
             editingMessage: event.message.nl,
@@ -77,8 +93,7 @@ class MessagesBloc extends Bloc<MessagesEvent, MessagesState> {
 
         case MessagesSendMessage():
           if (state.editingMessage.value != null) {
-            messageRepo.update(
-                event.message.content, state.editingMessage.value!.content.id);
+            messageRepo.update(event.message.content, state.editingMessage.value!.content.id);
             emit(state.copyWith(
               editingMessage: const Nullable.nl(),
               textMessage: '',
@@ -124,8 +139,8 @@ class MessagesBloc extends Bloc<MessagesEvent, MessagesState> {
         case MessagesSendText():
           final raw = _cleanMessage(state.textMessage);
           if (raw.isNotEmpty) {
-            final textProviders = MessageProviderRegistry.instance.providers
-                .where((e) => e.supportsTextInput);
+            final textProviders =
+                MessageProviderRegistry.instance.providers.where((e) => e.supportsTextInput);
             for (final provider in textProviders) {
               final created = provider.createFromText(raw);
               if (created != null) {
@@ -161,38 +176,29 @@ class MessagesBloc extends Bloc<MessagesEvent, MessagesState> {
           emit(state.copyWith(
             pendingMessages: [
               ...state.pendingMessages,
-              if (state.pendingMessages
-                  .every((e) => e.content.id != event.message.id))
+              if (state.pendingMessages.every((e) => e.content.id != event.message.id))
                 Message(
                   sender: chat.sender,
                   sentAt: DateTime.now(),
                   content: event.message,
                 ),
             ],
-            failedMessages: state.failedMessages
-                .where((e) => e.content.id != event.message.id)
-                .toList(),
+            failedMessages:
+                state.failedMessages.where((e) => e.content.id != event.message.id).toList(),
           ));
         case MessagesAddMessageToFailed():
           emit(state.copyWith(
             failedMessages: [
               ...state.failedMessages,
               if (state.pendingMessages.any((e) => e.content.id == event.id))
-                state.pendingMessages
-                    .firstWhere((e) => e.content.id == event.id),
+                state.pendingMessages.firstWhere((e) => e.content.id == event.id),
             ],
-            pendingMessages: state.pendingMessages
-                .where((e) => e.content.id != event.id)
-                .toList(),
+            pendingMessages: state.pendingMessages.where((e) => e.content.id != event.id).toList(),
           ));
         case MessagesRemoveMessageFromQueue():
           emit(state.copyWith(
-            failedMessages: state.failedMessages
-                .where((e) => e.content.id != event.id)
-                .toList(),
-            pendingMessages: state.pendingMessages
-                .where((e) => e.content.id != event.id)
-                .toList(),
+            failedMessages: state.failedMessages.where((e) => e.content.id != event.id).toList(),
+            pendingMessages: state.pendingMessages.where((e) => e.content.id != event.id).toList(),
           ));
       }
     });
@@ -231,16 +237,14 @@ class MessagesBloc extends Bloc<MessagesEvent, MessagesState> {
 
   delete(List<Message> messages) async {
     final isMutiple = messages.length > 1;
-    final canDeleteForAll =
-        messages.every((e) => e.isMine && e.content is! DeletedMessage);
+    final canDeleteForAll = messages.every((e) => e.isMine && e.content is! DeletedMessage);
     final deleteForAll = await showChatConfirmDialog(
       context: Get.context!,
       message: isMutiple
           ? 'Are you sure you want to delete these messages?'.tr
           : 'Are you sure you want to delete this message?'.tr,
       title: isMutiple
-          ? 'Delete ${messages.length} messages'
-              .trArgs([messages.length.toString()])
+          ? 'Delete ${messages.length} messages'.trArgs([messages.length.toString()])
           : 'Delete message',
       textOK: 'Delete'.tr,
       showDeleteForAll: canDeleteForAll,

@@ -1,5 +1,3 @@
-typedef FuturePaginatedResult<T> = Future<PaginatedResult<T>>;
-
 class PaginatedResult<T> {
   static const pageSize = 10;
 
@@ -47,6 +45,23 @@ class PaginatedResult<T> {
       isLoading: _isLoading,
       hasReachedEnd: hasReachedEnd,
       isFetched: isFetched,
+    );
+  }
+
+  /// New copyWith method
+  PaginatedResult<T> copyWith({
+    List<T>? items,
+    String? error,
+    bool? isLoading,
+    bool? isFetched,
+    bool? hasReachedEnd,
+  }) {
+    return PaginatedResult<T>(
+      items: items ?? this.items,
+      error: error ?? this.error,
+      isLoading: isLoading ?? _isLoading,
+      isFetched: isFetched ?? this.isFetched,
+      hasReachedEnd: hasReachedEnd ?? this.hasReachedEnd,
     );
   }
 
