@@ -161,15 +161,16 @@ class _ChatInputBoxState extends State<ChatInputBox> {
                                                                 svg: 'send',
                                                               ),
                                                             )
-                                                          : CustomIconButton(
-                                                              key: ValueKey(isNotEmpty),
-                                                              onPressed: () {
-                                                                context.read<MessagesBloc>().add(
-                                                                      MessagesRecordStart(),
-                                                                    );
-                                                              },
-                                                              svg: 'mic',
-                                                            ),
+                                                          : null,
+                                                      // : CustomIconButton(
+                                                      //     key: ValueKey(isNotEmpty),
+                                                      //     onPressed: () {
+                                                      //       context.read<MessagesBloc>().add(
+                                                      //             MessagesRecordStart(),
+                                                      //           );
+                                                      //     },
+                                                      //     svg: 'mic',
+                                                      //   ),
                                                     );
                                                   }),
                                             ),
