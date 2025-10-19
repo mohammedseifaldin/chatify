@@ -32,11 +32,10 @@ class MessagesPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    return const Scaffold();
     return _Wrapper(
       chat: chat,
-      children: ChatAddonsRegistry.instance.chatAddons
-          .map((a) => a.wrapChat)
-          .toList(),
+      children: ChatAddonsRegistry.instance.chatAddons.map((a) => a.wrapChat).toList(),
       child: BlocProvider(
         create: (context) => MessagesBloc(chat: chat),
         child: Builder(builder: (context) {
@@ -101,10 +100,7 @@ class MessagesPage extends StatelessWidget {
       if (p != 0) return p;
       return a.id.compareTo(b.id);
     });
-    return list
-        .map(
-            (h) => KeyedSubtree(key: ValueKey(h.id), child: h.builder(context)))
-        .toList();
+    return list.map((h) => KeyedSubtree(key: ValueKey(h.id), child: h.builder(context))).toList();
   }
 }
 
