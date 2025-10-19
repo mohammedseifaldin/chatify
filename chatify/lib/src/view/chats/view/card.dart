@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+
 import '../../../domain/models/chat.dart';
-import '../../chat/view/chat.dart';
 import '../../../helpers/extensions.dart';
+import '../../chat/view/chat.dart';
 
 class ChatCard extends StatelessWidget {
-  const ChatCard(this.chat, {super.key, this.builder});
+  final VoidCallback? onLongPress;
+  const ChatCard(this.chat, {super.key, this.builder, this.onLongPress});
 
   final Chat chat;
   final Widget Function(BuildContext context, Chat chat)? builder;
@@ -22,148 +24,107 @@ class ChatCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return TextButton(
-      onPressed: () {
+    return GestureDetector(
+      onTap: () {
         MessagesPage.showWithNavigator(
           context: context,
           chat: chat,
         );
       },
-      style: TextButton.styleFrom(
+      onLongPress: onLongPress,
+      child: Padding(
         padding: const EdgeInsetsDirectional.only(
           start: 28,
           top: 16,
           bottom: 16,
           end: 16,
         ),
-        shape: const RoundedRectangleBorder(),
-      ),
-      child: builder != null
-          ? builder!(context, chat)
-          : Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  width: 48,
-                  height: 48,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Theme.of(context).colorScheme.primaryContainer,
-                  ),
-                  alignment: Alignment.center,
-                  child: _ImageByName(chat: chat),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                              chat.receiver.name,
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .titleMedium
-                                  ?.copyWith(
-                                    color:
-                                        Theme.of(context).colorScheme.onSurface,
-                                  ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
+        child: builder != null
+            ? builder!(context, chat)
+            : Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            chat.receiver.name,
+                            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                  color: Theme.of(context).colorScheme.onSurface,
+                                ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        if (chat.isLastMessageMine)
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 4),
+                            child: Image.asset(
+                              chat.isLastMessageSeen ? 'assets/seen.png' : 'assets/sent.png',
+                              package: 'chatify',
+                              height: 14,
+                              color: Theme.of(context).colorScheme.onSurface,
                             ),
                           ),
-                          if (chat.isLastMessageMine)
-                            Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 4),
-                              child: Image.asset(
-                                chat.isLastMessageSeen
-                                    ? 'assets/seen.png'
-                                    : 'assets/sent.png',
-                                package: 'chatify',
-                                height: 14,
-                                color: Theme.of(context).colorScheme.onSurface,
+                        if (chat.updatedAt != null)
+                          Text(
+                            formatTime(chat.updatedAt!),
+                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                ),
+                          ),
+                      ],
+                    ),
+                    SizedBox(
+                      height: 24,
+                      child: Row(
+                        children: [
+                          if (chat.lastMessage != null)
+                            Expanded(
+                              child: Text(
+                                chat.lastMessage ?? '',
+                                style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                                      color: chat.isLastMessageSeen || chat.isLastMessageMine
+                                          ? Theme.of(context).colorScheme.outline
+                                          : Theme.of(context).colorScheme.onSurface,
+                                    ),
+                                textDirection: chat.lastMessage?.directionByLanguage,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            )
+                          else
+                            Expanded(
+                              child: Text(
+                                'Say hi!',
+                                style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                      fontWeight: FontWeight.w300,
+                                    ),
                               ),
                             ),
-                          Text(
-                            formatTime(chat.updatedAt),
-                            style:
-                                Theme.of(context).textTheme.bodySmall?.copyWith(
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .onSurfaceVariant,
-                                    ),
-                          ),
+                          if (chat.unseenMessages > 0)
+                            Container(
+                              width: 24,
+                              height: 24,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: Theme.of(context).colorScheme.primaryFixedDim,
+                              ),
+                              alignment: Alignment.center,
+                              child: Text(
+                                chat.unseenMessages.toString(),
+                                style: Theme.of(context).textTheme.labelLarge,
+                              ),
+                            )
                         ],
                       ),
-                      SizedBox(
-                        height: 24,
-                        child: Row(
-                          children: [
-                            if (chat.lastMessage != null)
-                              Expanded(
-                                child: Text(
-                                  chat.lastMessage ?? '',
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .labelLarge
-                                      ?.copyWith(
-                                        color: chat.isLastMessageSeen ||
-                                                chat.isLastMessageMine
-                                            ? Theme.of(context)
-                                                .colorScheme
-                                                .outline
-                                            : Theme.of(context)
-                                                .colorScheme
-                                                .onSurface,
-                                      ),
-                                  textDirection:
-                                      chat.lastMessage?.directionByLanguage,
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              )
-                            else
-                              Expanded(
-                                child: Text(
-                                  'Say hi!',
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .labelLarge
-                                      ?.copyWith(
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .onSurfaceVariant,
-                                        fontWeight: FontWeight.w300,
-                                      ),
-                                ),
-                              ),
-                            if (chat.unseenMessages > 0)
-                              Container(
-                                width: 24,
-                                height: 24,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .primaryFixedDim,
-                                ),
-                                alignment: Alignment.center,
-                                child: Text(
-                                  chat.unseenMessages.toString(),
-                                  style: Theme.of(context).textTheme.labelLarge,
-                                ),
-                              )
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+      ),
     );
   }
 }

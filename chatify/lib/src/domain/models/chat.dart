@@ -11,7 +11,7 @@ final class Chat extends Equatable {
   final String id;
   final User sender;
   final User receiver;
-  final DateTime updatedAt;
+  final DateTime? updatedAt;
   final DateTime? readAfter;
   final int unseenMessages;
   final String? lastMessage;
