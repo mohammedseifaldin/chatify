@@ -18,8 +18,7 @@ class ChatsLayout {
 }
 
 class ChatLayout {
-  final Widget Function(BuildContext context, Widget body, Chat chat)?
-      bodyBuilder;
+  final Widget Function(BuildContext context, Widget body, Chat chat)? bodyBuilder;
 
   ChatLayout({
     this.bodyBuilder,
@@ -101,8 +100,7 @@ class _ChatsListPage extends StatelessWidget {
           const SizedBox(height: 40),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24),
-            child:
-                Text('Chat', style: Theme.of(context).textTheme.headlineMedium),
+            child: Text('Chat', style: Theme.of(context).textTheme.headlineMedium),
           ),
           const SizedBox(height: 24),
           Expanded(

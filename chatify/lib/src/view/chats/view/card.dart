@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 
 import '../../../domain/models/chat.dart';
 import '../../../helpers/extensions.dart';
+import '../../chat/view/chat.dart';
 
 class ChatCard extends StatelessWidget {
   final GestureLongPressStartCallback? onLongPressStart;
@@ -28,12 +29,7 @@ class ChatCard extends StatelessWidget {
     return GestureDetector(
       onTap: () {
         onTap?.call();
-        Get.toNamed('/chat', arguments: {'chat': chat});
-
-        // MessagesPage.showWithNavigator(
-        //   context: context,
-        //   chat: chat,
-        // );
+        Get.to(() => MessagesPage(chat: chat));
       },
       onLongPressStart: onLongPressStart,
       child: Padding(
