@@ -47,6 +47,17 @@ class ChatCard extends StatelessWidget {
                   children: [
                     Row(
                       children: [
+                        Container(
+                          width: 48,
+                          height: 48,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: Theme.of(context).colorScheme.primaryContainer,
+                          ),
+                          alignment: Alignment.center,
+                          child: _ImageByName(chat: chat),
+                        ),
+                        const SizedBox(width: 16),
                         Expanded(
                           child: Text(
                             chat.receiver.name,
