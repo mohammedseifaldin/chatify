@@ -26,13 +26,13 @@ class ChatCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: onTap ??
-          () {
-            MessagesPage.showWithNavigator(
-              context: context,
-              chat: chat,
-            );
-          },
+      onTap: () {
+        onTap?.call();
+        MessagesPage.showWithNavigator(
+          context: context,
+          chat: chat,
+        );
+      },
       onLongPressStart: onLongPressStart,
       child: Padding(
         padding: const EdgeInsetsDirectional.only(
