@@ -32,7 +32,6 @@ class MessagesPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold();
     return _Wrapper(
       chat: chat,
       children: ChatAddonsRegistry.instance.chatAddons.map((a) => a.wrapChat).toList(),
