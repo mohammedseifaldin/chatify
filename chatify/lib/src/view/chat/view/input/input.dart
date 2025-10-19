@@ -161,21 +161,15 @@ class _ChatInputBoxState extends State<ChatInputBox> {
                                                                 svg: 'send',
                                                               ),
                                                             )
-                                                          : null,
-                                                      // : CustomIconButton(
-                                                      //     key: ValueKey(
-                                                      //         isNotEmpty),
-                                                      //     onPressed:
-                                                      //         () {
-                                                      //       context
-                                                      //           .read<
-                                                      //               MessagesBloc>()
-                                                      //           .add(
-                                                      //             MessagesRecordStart(),
-                                                      //           );
-                                                      //     },
-                                                      //     svg: 'mic',
-                                                      //   ),
+                                                          : CustomIconButton(
+                                                              key: ValueKey(isNotEmpty),
+                                                              onPressed: () {
+                                                                context.read<MessagesBloc>().add(
+                                                                      MessagesRecordStart(),
+                                                                    );
+                                                              },
+                                                              svg: 'mic',
+                                                            ),
                                                     );
                                                   }),
                                             ),
